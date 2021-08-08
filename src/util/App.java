@@ -5,15 +5,18 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 
 import br.ufg.inf.fs.ctrl.HospedeCtrl;
 import br.ufg.inf.fs.ctrl.HotelCtrl;
 import br.ufg.inf.fs.ctrl.QuartoCtrl;
+import br.ufg.inf.fs.ctrl.HospedagemCtrl;
+
 import br.ufg.inf.fs.entities.Hotel;
 import br.ufg.inf.fs.entities.Hospede;
+import br.ufg.inf.fs.entities.Hospedagem;
 import br.ufg.inf.fs.entities.Quarto;
+
 import br.ufg.inf.fs.enums.CategoriaQuarto;
 
 public class App {
@@ -27,24 +30,58 @@ public class App {
 
 	public static void main(String[] args) {
 
-		// testeCrudQuarto();
-		// testeConexao();
 		try {
-			testeCrudHospede();
+			testeCrudHospedagem();
 		} catch (Exception e) {
 			System.out.println(e);
 		}
-		
+
 	}
 
-	public static void testeConexao() {
-		try {
-			Connection con = (Connection) DriverManager.getConnection("jdbc:mysql://localhost:3306/db_hotel", "root",
-					"docker");
-			System.out.println("Conexão funcionou");
-		} catch (SQLException e) {
-			System.err.println("Conexão não funcionou");
-			System.out.println(e.getMessage());
+	public static void testeCrudHospedagem() throws ParseException {
+		HospedagemCtrl ctrl = new HospedagemCtrl();
+		HospedeCtrl hospedeCtrl = new HospedeCtrl();
+		QuartoCtrl quartoCtrl = new QuartoCtrl();
+
+		System.out.println("Cadastar novo hospedagem");
+		Date dateCheckin = new SimpleDateFormat("yyyy-MM-dd").parse("2021-08-05");
+		java.sql.Date sqlDateCheckin = new java.sql.Date(dateCheckin.getTime());
+
+		Date dateCheckout = new SimpleDateFormat("yyyy-MM-dd").parse("2021-08-08");
+		java.sql.Date sqlDateCheckout = new java.sql.Date(dateCheckout.getTime());
+
+		Quarto q1 = quartoCtrl.findById(1);
+		Hospede h1 = hospedeCtrl.findById(4);
+
+		Hospedagem hospedagem = new Hospedagem(null, q1.getIdQuarto(), h1.getIdHospede(), sqlDateCheckin,
+				sqlDateCheckout);
+
+		Hospedagem result = ctrl.insert(hospedagem);
+
+		System.out.println(result);
+
+
+		System.out.println("Lista de Hospedagens Cadastradas");
+		for (Hospedagem h : ctrl.findAll()) {
+			System.out.println(h);
+		}
+
+		System.out.println("UPDATE");
+		Hospedagem hospedagem2 = ctrl.findById(1);
+		hospedagem2.setIdQuarto(4); // altera do quarto 1 para o quarto 4
+		hospedagem2 = ctrl.update(hospedagem2);
+
+		System.out.println("Lista de Hospedagens Cadastradas");
+		for (Hospedagem h : ctrl.findAll()) {
+			System.out.println(h);
+		}
+
+		System.out.println("Deletar hospedagem 1");
+		ctrl.delete(1);
+
+		System.out.println("Lista de Hospedagens Cadastradas");
+		for (Hospedagem h : ctrl.findAll()) {
+			System.out.println(h);
 		}
 	}
 
@@ -52,7 +89,7 @@ public class App {
 		HospedeCtrl ctrl = new HospedeCtrl();
 
 		System.out.println("Lista de Hóspedes Cadastrados");
-		for(Hospede h: ctrl.findAll()) {
+		for (Hospede h : ctrl.findAll()) {
 			System.out.println(h);
 		}
 
@@ -62,7 +99,7 @@ public class App {
 
 		System.out.println("Cadastar novo hóspede");
 		Date date = new SimpleDateFormat("yyyy-MM-dd").parse("1977-11-25");
-		java.sql.Date sqlDate = new java.sql.Date(date.getTime()); 
+		java.sql.Date sqlDate = new java.sql.Date(date.getTime());
 		Hospede hospede1 = new Hospede(null, "Lucas Silva", sqlDate, 123456);
 		Hospede h1 = ctrl.insert(hospede1);
 		System.out.println(h1);
@@ -75,7 +112,7 @@ public class App {
 		System.out.println("#ID alterado: " + h2);
 
 		System.out.println("Lista de Hóspedes Cadastrados");
-		for(Hospede h: ctrl.findAll()) {
+		for (Hospede h : ctrl.findAll()) {
 			System.out.println(h);
 		}
 
@@ -83,7 +120,7 @@ public class App {
 		ctrl.delete(3);
 
 		System.out.println("Lista de Hóspedes Atualizada");
-		for(Hospede h: ctrl.findAll()) {
+		for (Hospede h : ctrl.findAll()) {
 			System.out.println(h);
 		}
 
@@ -170,4 +207,14 @@ public class App {
 
 	}
 
+	public static void testeConexao() {
+		try {
+			Connection con = (Connection) DriverManager.getConnection("jdbc:mysql://localhost:3306/db_hotel", "root",
+					"docker");
+			System.out.println("Conexão funcionou");
+		} catch (SQLException e) {
+			System.err.println("Conexão não funcionou");
+			System.out.println(e.getMessage());
+		}
+	}
 }
